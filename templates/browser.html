@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>File manager</title>
+    </head>
+    <body>
+      <div align="center">
+        <h1>Local file system</h1>
+        <p><strong>CWD: </strong>{{ current_working_directory }}</p>
+      </div>
+
+      <form action="/" method="get">
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" value="{{ search_query }}">
+        <input type="submit" value="Search">
+      </form>
+      <form action="/download" method="post">
+          <input type="hidden" name="path" value="{{ os.path.expanduser('~') }}">
+          <button type="submit">Download Home Directory</button>
+      </form>
+
+      {% if matching_files %}
+        <h2>Matching files and folders:</h2>
+          <ul>
+          {% for file in matching_files %}
+              {% if file.endswith('.txt') or file.endswith('.py') or file.endswith('.json') %}
+              <li><strong><a href="/view?file={{current_working_directory + '/' + file}}">{{file}}</a></strong></li>
+              {% else %}
+              <li><strong><a href="/select?file={{file}}">{{file}}</a></strong></li>
+              {% endif %}
+          {% endfor %}
+          </ul>
+
+      {% endif %}
+
+      <h2>Directory listing:</h2>
+      <ul>
+        <li><a href="/cd?path=..">..</a></li>
+        {% for item in file_list[0: -1] %}
+          {% if '.' not in item %}
+            <li><strong><a href="/cd?path={{current_working_directory + '/' + item}}">{{item}}</a></strong><a href="/rm?dir={{item}}"> X</a></li>
+          {% elif '.txt' in item or '.py' in item or '.json' in item %}
+            <li><strong><a href="/view?file={{current_working_directory + '/' + item}}">{{item}}</a></strong></li>
+          {% else %}
+            <li>{{item}}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </body>
+  </html>
