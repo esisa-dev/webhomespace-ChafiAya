@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flask Test</title>
+    <style>
+      button {
+        border: none;
+        cursor: pointer;
+        margin: 10px;
+        padding: 10px;
+      }
+      #logout {
+        background-color: red;
+        color: white;
+      }
+      #files {
+        background-color: blue;
+        color: white;
+      }
+      #dirs {
+        background-color: green;
+        color: white;
+      }
+      #space {
+        background-color: pink;
+        color: white;
+      }
+      .clicked {
+        background-color: purple !important;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <nav>
+        <h1>Welcome to your homespace, {{ username }}!</h1>
+        <button id="logout" onclick="window.location.href='/logout'">Log out</button>
+        <button id="files" onclick="window.location.href='/files'; this.classList.add('clicked');">
+          Files&nbsp;<span id="file-count">{{ file_count }}</span>
+        </button>
+        <button id="dirs" onclick="window.location.href='/dirs'; this.classList.add('clicked');">
+          Dirs&nbsp;<span id="dir-count">{{ directories_count }}</span>
+        </button>
+        <button id="space" onclick="window.location.href='/space'; this.classList.add('clicked');">
+          Space&nbsp;<span id="space-used">{{ space_used }}</span>
+        </button>
+
+        {% if files is defined %}
+        <h1>File Browser</h1> 
+        <p><strong>CWD: </strong>{{ path }}</p>
+
+    
+        <form action="/file_browser" method="get">
+          <label for="search">Search:</label>
+          <input type="text" id="search" name="search" value="{{ search_query }}">
+          <input type="submit" value="Search">
+        </form>
+        
+        {% if matching_files %}
+        <h2>Matching files and folders:</h2>
+        <ul>
+          {% for file in matching_files %}
+            <li><strong><a href="/select?file={{ file }}">{{ file }}</a></strong></li>
+        {% endfor %}
+
+        
+        </ul>
+      {% else %}
+        {% if search_query %}
+          <p>No matching files or folders found.</p>
+        {% endif %}
+      {% endif %}
+      
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last Modified</th>
+                    <th>Size</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+              {% for file in files %}
+
+            <tr>
+              <td><a href="/view?={{ os.path.basename(file[0]) }}/">{{ os.path.basename(file[0]) }}/</a></td>
+              <td>{% if file[1] %}{{ file[1] }}{% endif %}</td>
+              <td>{% if file[2] >= 1024 %}{{ '{:.2f}'.format(file[2]/1024) }} KB{% else %}{{ file[2] }} Bytes{% endif %}</td>
+            </tr>
+            
+          {% endfor %}
+          </tbody>
+        </table>
+    {% endif %}
+    
+
+      </nav>
+    </center>
+  </body>
+</html>
